@@ -2,6 +2,7 @@ import hashlib
 import string
 from datetime import date
 
+from password_manager.period import Period, TrimestrialPeriod
 from password_manager.random import rand, srand
 
 CHARACTER_SET_LOWERCASE = string.ascii_lowercase
@@ -50,6 +51,7 @@ class ContainsSpecialRule(CharacterSetRule):
 class Website:
     all_websites: list[type["Website"]] = []
     rules: list[Rule] = []
+    period: Period = TrimestrialPeriod()
     _character_set: str = ""
 
     def __init_subclass__(cls) -> None:
@@ -69,10 +71,6 @@ class Website:
 
     @staticmethod
     def canonical_url() -> str:
-        raise NotImplementedError
-
-    @staticmethod
-    def date_for_period(period) -> str:
         raise NotImplementedError
 
 
@@ -114,7 +112,10 @@ def generate_password(email: str, general_password: str, url: str) -> str:
         print("No website configuration found")
         return ""
     seed_str = (
-        email + website.canonical_url() + general_password + website.date_for_period(0)
+        email
+        + website.canonical_url()
+        + general_password
+        + website.period.date_for_period(0)
     )
     seed = int(hashlib.sha256(seed_str.encode(encoding="utf-8")).hexdigest(), 16)
     srand(seed)
