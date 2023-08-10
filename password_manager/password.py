@@ -1,6 +1,5 @@
 import hashlib
 import string
-from datetime import date
 
 from password_manager.period import Period, TrimestrialPeriod
 from password_manager.random import rand, srand
@@ -90,13 +89,6 @@ class LinkedinWebsite(Website):
     @staticmethod
     def canonical_url() -> str:
         return "https://www.linkedin.com"
-
-    @staticmethod
-    def date_for_period(period) -> str:
-        # trimestrial
-        today = date.today()
-        start = date(year=today.year, month=today.month % 3 + 1, day=1)
-        return start.strftime("%Y%m%d")  # monthly
 
 
 def website_for(url: str) -> type[Website] | None:
