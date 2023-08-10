@@ -1,9 +1,11 @@
-import strings
+import string
 from datetime import date
 
-CHARACTER_SET_LOWERCASE = strings.ascii_lowercase
-CHARACTER_SET_UPPERCASE = strings.ascii_uppercase
-CHARACTER_SET_DIGIT = strings.digits
+from password_manager.random import rand, srand
+
+CHARACTER_SET_LOWERCASE = string.ascii_lowercase
+CHARACTER_SET_UPPERCASE = string.ascii_uppercase
+CHARACTER_SET_DIGIT = string.digits
 CHARACTER_SET_SPECIAL = "@#$<>()[]+-/*=%"
 
 
@@ -46,10 +48,19 @@ class ContainsSpecialRule(CharacterSetRule):
 
 class Website:
     all_websites: list[type["Website"]] = []
-    _rules: list[Rule] = []
+    rules: list[Rule] = []
+    _character_set: str = ""
 
     def __init_subclass__(cls) -> None:
         Website.all_websites.append(cls)
+
+    @classmethod
+    def character_set(cls) -> str:
+        if not cls._character_set:
+            for rule in cls.rules:
+                if isinstance(rule, CharacterSetRule):
+                    cls._character_set += rule.character_set
+        return cls._character_set
 
     @classmethod
     def is_for(cls, url: str) -> bool:
@@ -65,7 +76,7 @@ class Website:
 
 
 class LinkedinWebsite(Website):
-    _rules = [
+    rules = [
         LengthRule(min_length=10, max_length=20),
         ContainsLowercaseRule(),
         ContainsUppercaseRule(),
@@ -93,20 +104,36 @@ def website_for(url: str) -> type[Website] | None:
     return None
 
 
-def generate_password(email: str, general_password: str, url: str) -> None:
+def generate_password(email: str, general_password: str, url: str) -> str:
     website = website_for(url)
     if website is None:
         print("No website configuration found")
-        return
-    seed = (
+        return ""
+    seed = hash(
         email + website.canonical_url() + general_password + website.date_for_period(0)
     )
-    print(seed)
+    srand(seed)
+
+    password = ""  # nosec
+    for rule in website.rules:
+        if isinstance(rule, CharacterSetRule):
+            password += rule.character_set[rand() % len(rule.character_set)]
+
+    length = 10
+    for rule in website.rules:
+        if isinstance(rule, LengthRule):
+            length = rule.max_length
+
+    while len(password) < length:
+        password += website.character_set()[rand() % len(website.character_set())]
+
+    # TODO assert all rules OK
+    return password
 
 
 def generate_passwords(email: str, general_password: str, url: str) -> None:
     # for last 3 periods
-    generate_password(email, general_password, url)
+    print(generate_password(email, general_password, url))
 
 
 if __name__ == "__main__":
