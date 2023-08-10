@@ -23,9 +23,7 @@ class LengthRule(Rule):
 
 class Website:
     all_websites: list[type["Website"]] = []
-
-    def __init__(self) -> None:
-        self.rules: list[Rule] = []
+    _rules: list[Rule] = []
 
     def __init_subclass__(cls) -> None:
         Website.all_websites.append(cls)
@@ -44,9 +42,7 @@ class Website:
 
 
 class LinkedinWebsite(Website):
-    def __init__(self) -> None:
-        super().__init__()
-        self.rules.append(LengthRule(min_length=10, max_length=20))
+    _rules = [LengthRule(min_length=10, max_length=20)]
 
     @classmethod
     def is_for(cls, url: str) -> bool:
