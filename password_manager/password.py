@@ -3,7 +3,7 @@ from datetime import date
 
 CHARACTER_SET_LOWERCASE = strings.ascii_lowercase
 CHARACTER_SET_UPPERCASE = strings.ascii_uppercase
-CHARACTER_SET_DIGISTS = strings.digits
+CHARACTER_SET_DIGIT = strings.digits
 CHARACTER_SET_SPECIAL = "@#$<>()[]+-/*=%"
 
 
@@ -19,6 +19,29 @@ class LengthRule(Rule):
 
     def is_valid(self, password: str) -> bool:
         return self.min_length <= len(password) <= self.max_length
+
+
+class CharacterSetRule(Rule):
+    character_set: str = ""
+
+    def is_valid(self, password: str) -> bool:
+        return any(c in password for c in self.character_set)
+
+
+class ContainsLowercaseRule(CharacterSetRule):
+    character_set = CHARACTER_SET_LOWERCASE
+
+
+class ContainsUppercaseRule(CharacterSetRule):
+    character_set = CHARACTER_SET_UPPERCASE
+
+
+class ContainsDigitRule(CharacterSetRule):
+    character_set = CHARACTER_SET_DIGIT
+
+
+class ContainsSpecialRule(CharacterSetRule):
+    character_set = CHARACTER_SET_SPECIAL
 
 
 class Website:
@@ -42,7 +65,13 @@ class Website:
 
 
 class LinkedinWebsite(Website):
-    _rules = [LengthRule(min_length=10, max_length=20)]
+    _rules = [
+        LengthRule(min_length=10, max_length=20),
+        ContainsLowercaseRule(),
+        ContainsUppercaseRule(),
+        ContainsDigitRule(),
+        ContainsSpecialRule(),
+    ]
 
     @classmethod
     def is_for(cls, url: str) -> bool:
