@@ -1,11 +1,31 @@
+import strings
 from datetime import date
+
+CHARACTER_SET_LOWERCASE = strings.ascii_lowercase
+CHARACTER_SET_UPPERCASE = strings.ascii_uppercase
+CHARACTER_SET_DIGISTS = strings.digits
+CHARACTER_SET_SPECIAL = "@#$<>()[]+-/*=%"
+
+
+class Rule:
+    def is_valid(self, password: str) -> bool:
+        return False
+
+
+class LengthRule(Rule):
+    def __init__(self, min_length: int, max_length: int) -> None:
+        self.min_length = min_length
+        self.max_length = max_length
+
+    def is_valid(self, password: str) -> bool:
+        return self.min_length <= len(password) <= self.max_length
 
 
 class Website:
     all_websites: list[type["Website"]] = []
 
     def __init__(self) -> None:
-        pass
+        self.rules: list[Rule] = []
 
     def __init_subclass__(cls) -> None:
         Website.all_websites.append(cls)
@@ -24,6 +44,10 @@ class Website:
 
 
 class LinkedinWebsite(Website):
+    def __init__(self) -> None:
+        super().__init__()
+        self.rules.append(LengthRule(min_length=10, max_length=20))
+
     @classmethod
     def is_for(cls, url: str) -> bool:
         return "linkedin.com" in url  # TODO urlparse
