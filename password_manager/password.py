@@ -1,107 +1,14 @@
 import hashlib
-import string
 
-from password_manager.period import Period, TrimestrialPeriod
 from password_manager.random import rand, srand
-
-CHARACTER_SET_LOWERCASE = string.ascii_lowercase
-CHARACTER_SET_UPPERCASE = string.ascii_uppercase
-CHARACTER_SET_DIGIT = string.digits
-CHARACTER_SET_SPECIAL = "@#$<>()[]+-/*=%"
-
-
-class Rule:
-    def is_valid(self, password: str) -> bool:
-        return False
-
-
-class LengthRule(Rule):
-    def __init__(self, min_length: int, max_length: int) -> None:
-        self.min_length = min_length
-        self.max_length = max_length
-
-    def is_valid(self, password: str) -> bool:
-        return self.min_length <= len(password) <= self.max_length
-
-
-class CharacterSetRule(Rule):
-    character_set: str = ""
-
-    def is_valid(self, password: str) -> bool:
-        return any(c in password for c in self.character_set)
-
-
-class ContainsLowercaseRule(CharacterSetRule):
-    character_set = CHARACTER_SET_LOWERCASE
-
-
-class ContainsUppercaseRule(CharacterSetRule):
-    character_set = CHARACTER_SET_UPPERCASE
-
-
-class ContainsDigitRule(CharacterSetRule):
-    character_set = CHARACTER_SET_DIGIT
-
-
-class ContainsSpecialRule(CharacterSetRule):
-    character_set = CHARACTER_SET_SPECIAL
-
-
-class Website:
-    all_websites: list[type["Website"]] = []
-    rules: list[Rule] = []
-    period: Period = TrimestrialPeriod()
-    _character_set: str = ""
-
-    def __init_subclass__(cls) -> None:
-        Website.all_websites.append(cls)
-
-    @classmethod
-    def character_set(cls) -> str:
-        if not cls._character_set:
-            for rule in cls.rules:
-                if isinstance(rule, CharacterSetRule):
-                    cls._character_set += rule.character_set
-        return cls._character_set
-
-    @classmethod
-    def is_for(cls, url: str) -> bool:
-        return False
-
-    @staticmethod
-    def canonical_url() -> str:
-        raise NotImplementedError
-
-
-class LinkedinWebsite(Website):
-    rules = [
-        LengthRule(min_length=10, max_length=20),
-        ContainsLowercaseRule(),
-        ContainsUppercaseRule(),
-        ContainsDigitRule(),
-        ContainsSpecialRule(),
-    ]
-
-    @classmethod
-    def is_for(cls, url: str) -> bool:
-        return "linkedin.com" in url  # TODO urlparse
-
-    @staticmethod
-    def canonical_url() -> str:
-        return "https://www.linkedin.com"
-
-
-def website_for(url: str) -> type[Website] | None:
-    for website in Website.all_websites:
-        if website.is_for(url):
-            return website
-    return None
+from password_manager.rules import CharacterSetRule, LengthRule
+from password_manager.website.website import Website
 
 
 def generate_password(
     email: str, general_password: str, url: str, period: int = 0
 ) -> str:
-    website = website_for(url)
+    website = Website.website_for(url)
     if website is None:
         print("No website configuration found")
         return ""
