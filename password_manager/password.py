@@ -106,7 +106,9 @@ def website_for(url: str) -> type[Website] | None:
     return None
 
 
-def generate_password(email: str, general_password: str, url: str) -> str:
+def generate_password(
+    email: str, general_password: str, url: str, period: int = 0
+) -> str:
     website = website_for(url)
     if website is None:
         print("No website configuration found")
@@ -115,7 +117,7 @@ def generate_password(email: str, general_password: str, url: str) -> str:
         email
         + website.canonical_url()
         + general_password
-        + website.period.date_for_period(0)
+        + website.period.date_for_period(period)
     )
     seed = int(hashlib.sha256(seed_str.encode(encoding="utf-8")).hexdigest(), 16)
     srand(seed)
@@ -138,8 +140,8 @@ def generate_password(email: str, general_password: str, url: str) -> str:
 
 
 def generate_passwords(email: str, general_password: str, url: str) -> None:
-    # for last 3 periods
-    print(generate_password(email, general_password, url))
+    for period in range(3):
+        print(period, "  =>  ", generate_password(email, general_password, url, period))
 
 
 if __name__ == "__main__":
