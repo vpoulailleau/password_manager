@@ -1,3 +1,4 @@
+import hashlib
 import string
 from datetime import date
 
@@ -109,9 +110,10 @@ def generate_password(email: str, general_password: str, url: str) -> str:
     if website is None:
         print("No website configuration found")
         return ""
-    seed = hash(
+    seed_str = (
         email + website.canonical_url() + general_password + website.date_for_period(0)
     )
+    seed = int(hashlib.sha256(seed_str.encode(encoding="utf-8")).hexdigest(), 16)
     srand(seed)
 
     password = ""  # nosec
