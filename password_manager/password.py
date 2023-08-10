@@ -95,7 +95,10 @@ class LinkedinWebsite(Website):
 
     @staticmethod
     def date_for_period(period) -> str:
-        return date.today().strftime("%Y%m01")  # monthly
+        # trimestrial
+        today = date.today()
+        start = date(year=today.year, month=today.month % 3 + 1, day=1)
+        return start.strftime("%Y%m%d")  # monthly
 
 
 def website_for(url: str) -> type[Website] | None:
