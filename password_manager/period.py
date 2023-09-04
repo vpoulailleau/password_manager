@@ -18,20 +18,24 @@ class Period:
         return self.start.strftime("%Y%m%d")
 
     def date_for_period(self, period: int) -> str:
-        new_period = Period(start=self.start - abs(period) * self.period_length)
+        new_period = self
+        for _ in range(abs(period)):
+            new_period = self.__class__(start=new_period.start - self.period_length)
         return str(new_period)
 
 
 class TrimestrialPeriod(Period):
-    period_length = timedelta(days=31 * 3)
+    period_length = timedelta(days=28 * 3)
 
     @property
     def start(self) -> date:
-        return date(year=self._start.year, month=self._start.month % 3 + 1, day=1)
+        return date(
+            year=self._start.year, month=(self._start.month - 1) // 3 * 3 + 1, day=1
+        )
 
 
 class MonthlyPeriod(Period):
-    period_length = timedelta(days=31)
+    period_length = timedelta(days=28)
 
     @property
     def start(self) -> date:
@@ -39,7 +43,7 @@ class MonthlyPeriod(Period):
 
 
 class YearlyPeriod(Period):
-    period_length = timedelta(days=365)
+    period_length = timedelta(days=364)
 
     @property
     def start(self) -> date:
