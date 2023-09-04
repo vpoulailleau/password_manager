@@ -36,3 +36,11 @@ class MonthlyPeriod(Period):
     @property
     def start(self) -> date:
         return date(year=self._start.year, month=self._start.month, day=1)
+
+
+class YearlyPeriod(Period):
+    period_length = timedelta(days=365)
+
+    @property
+    def start(self) -> date:
+        return date(year=self._start.year, month=1, day=1)

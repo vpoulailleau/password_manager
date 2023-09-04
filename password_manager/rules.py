@@ -1,9 +1,14 @@
+import re
 import string
 
 CHARACTER_SET_LOWERCASE = string.ascii_lowercase
 CHARACTER_SET_UPPERCASE = string.ascii_uppercase
 CHARACTER_SET_DIGIT = string.digits
 CHARACTER_SET_SPECIAL = "@#$<>()[]+-/*=%"
+
+
+class RuleError(Exception):
+    pass
 
 
 class Rule:
@@ -41,3 +46,11 @@ class ContainsDigitRule(CharacterSetRule):
 
 class ContainsSpecialRule(CharacterSetRule):
     character_set = CHARACTER_SET_SPECIAL
+
+
+class NoMatchRule(Rule):
+    def __init__(self, regex: str) -> None:
+        self.regex = regex
+
+    def is_valid(self, password: str) -> bool:
+        return re.search(self.regex, password) is None
