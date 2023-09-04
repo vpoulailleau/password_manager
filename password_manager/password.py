@@ -6,9 +6,7 @@ from password_manager.rules import CharacterSetRule, LengthRule, RuleError
 from password_manager.website.website import Website
 
 
-def _generate_password(
-    website: type[Website], email: str, general_password: str, url: str, period: int = 0
-) -> str:
+def _generate_password(website: type[Website]) -> str:
     password = ""  # nosec
     for rule in website.rules:
         if isinstance(rule, CharacterSetRule):
@@ -47,10 +45,22 @@ def generate_password(
     # try, stop at first correct generation
     for _ in range(100):
         with suppress(RuleError):
-            return _generate_password(website, email, general_password, url, period)
+            return _generate_password(website)
     return "No password generation is possible"
 
 
 def generate_passwords(email: str, general_password: str, url: str) -> None:
+    website = Website.website_for(url)
+    if website is None:
+        print("No website configuration found")
+        return
+    print("Password for", website.canonical_url())
     for period in range(3):
-        print(period, "  =>  ", generate_password(email, general_password, url, period))
+        date = website.period.date_for_period(period)
+        date = f"{date[0:4]}/{date[4:6]}/{date[6:8]}"
+        print(
+            "Since",
+            date,
+            "  =>  ",
+            generate_password(email, general_password, url, period),
+        )
