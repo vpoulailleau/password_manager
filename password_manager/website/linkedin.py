@@ -1,3 +1,4 @@
+from password_manager.period import TrimestrialPeriod
 from password_manager.rules import (
     LengthRule,
     ContainsLowercaseRule,
@@ -9,6 +10,7 @@ from password_manager.website import Website
 
 
 class LinkedinWebsite(Website):
+    period = TrimestrialPeriod()
     rules = [
         LengthRule(min_length=10, max_length=20),
         ContainsLowercaseRule(),
