@@ -1,2 +1,9 @@
-# password_manager
-Storageless password manager
+# Password manager
+
+Storageless password manager.
+
+Requires Python3.11+
+
+```
+python -m password_manager
+```
