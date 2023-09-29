@@ -28,6 +28,10 @@ class LengthRule(Rule):
 class CharacterSetRule(Rule):
     character_set: str = ""
 
+    def __init__(self, character_set: str | None = None) -> None:
+        if character_set is not None:
+            self.character_set = character_set
+
     def is_valid(self, password: str) -> bool:
         return any(c in password for c in self.character_set)
 
