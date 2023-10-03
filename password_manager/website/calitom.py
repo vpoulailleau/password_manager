@@ -12,7 +12,7 @@ from password_manager.website import Website
 class CalitomWebsite(Website):
     period = YearlyPeriod()
     rules = [
-        LengthRule(min_length=6, max_length=32),
+        LengthRule(min_length=6, max_length=20),
         ContainsLowercaseRule(),
         ContainsUppercaseRule(),
         ContainsDigitRule(),
