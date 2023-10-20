@@ -1,4 +1,5 @@
 from .website import Website  # noqa: F401
+from .ameli import AmeliWebsite  # noqa: F401
 from .banquepopulaire import BanquePopulaireWebsite  # noqa: F401
 from .calitom import CalitomWebsite  # noqa: F401
 from .docusign import DocusignWebsite  # noqa: F401
